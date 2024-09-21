@@ -39,8 +39,10 @@ var app = builder.Build();
 // Configure web application's middleware pipeline.
 app.UseCors();
 app.UseRouting(); // Required for SignalR.
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.UseWorkflowsApi(); // Use Elsa API endpoints.
 app.UseWorkflows(); // Use Elsa middleware to handle HTTP requests mapped to HTTP Endpoint activities.
 app.UseWorkflowsSignalRHubs(); // Optional SignalR integration. Elsa Studio uses SignalR to receive real-time updates from the server. 
