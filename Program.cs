@@ -1,26 +1,23 @@
-﻿using Elsa.Extensions;
-using Elsa.Workflows.Activities;
+using Elsa.Extensions;
 using Elsa.Workflows.Contracts;
-using Microsoft.Extensions.DependencyInjection;
+using Elsa.Http;
 
-// Setup service container.
-var services = new ServiceCollection();
+var builder = WebApplication.CreateBuilder(args);
 
-// Add Elsa services to the container.
-services.AddElsa();
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddElsa(elsa => elsa.UseHttp());
 
-// Build the service container.
-var serviceProvider = services.BuildServiceProvider();
+var app = builder.Build();
 
-var workflow = new Sequence{
-    Activities = {
-        new WriteLine("Hello world!"),
-        new WriteLine("Goodbye world!")
-    }
-};
+app.MapGet("/run-workflow", async (IWorkflowRunner runner) => {
+    await runner.RunAsync(new WriteHttpResponse{
+        Content = new("Hey man!")
+    });
+});
 
-// Resolve a workflow runner to execute the workflow.
-var workflowRunner = serviceProvider.GetRequiredService<IWorkflowRunner>();
-
-// Execute the workflow.
-await workflowRunner.RunAsync(workflow);
+// Configure the HTTP request pipeline.
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
